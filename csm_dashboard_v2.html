@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CSM Command Center — RPO Firm</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+<style>
+  :root {
+    --brand: #3CA67E;
+    --brand-dim: #2d8a67;
+    --brand-glow: rgba(60,166,126,0.15);
+    --brand-light: rgba(60,166,126,0.08);
+    --bg: #0a0f0d;
+    --bg2: #111814;
+    --bg3: #161e1a;
+    --bg4: #1c2620;
+    --border: rgba(60,166,126,0.18);
+    --border2: rgba(255,255,255,0.06);
+    --text: #e8f0ec;
+    --text2: #8aa898;
+    --text3: #4d6b5c;
+    --red: #e05a5a;
+    --red-bg: rgba(224,90,90,0.1);
+    --amber: #d4925a;
+    --amber-bg: rgba(212,146,90,0.1);
+    --green: #3CA67E;
+    --green-bg: rgba(60,166,126,0.1);
+    --purple: #8b7dd4;
+    --purple-bg: rgba(139,125,212,0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(60,166,126,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(60,166,126,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  /* ── Topbar ── */
+  .topbar {
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    background: rgba(10,15,13,0.9);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--brand);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #fff;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
+  .logo-sub { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .2s;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .chip:hover { border-color: var(--brand); color: var(--brand); }
+  .chip.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .chip.primary:hover { background: var(--brand-dim); }
+  .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+  /* ── Hero metrics ── */
+  .hero { padding: 32px 0 24px; }
+  .hero-title { font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .metrics-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .metric {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+    cursor: default;
+  }
+  .metric:hover { border-color: var(--border); }
+  .metric::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent, var(--brand));
+    opacity: .6;
+  }
+  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+  .metric-value { font-size: 28px; font-weight: 600; color: var(--text); letter-spacing: -0.03em; line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text2); margin-top: 5px; }
+  .metric.danger { --accent: var(--red); }
+  .metric.warn { --accent: var(--amber); }
+  .metric.good { --accent: var(--green); }
+
+  /* ── Layout ── */
+  .layout { display: grid; grid-template-columns: 1fr 360px; gap: 20px; padding-bottom: 40px; }
+
+  /* ── Alerts banner ── */
+  .alerts-bar {
+    background: rgba(224,90,90,0.06);
+    border: 1px solid rgba(224,90,90,0.2);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .alerts-bar i { color: var(--red); font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+  .alert-items { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .alert-row { display: flex; align-items: center; justify-content: space-between; }
+  .alert-company { font-size: 13px; font-weight: 500; color: var(--text); }
+  .alert-msg { font-size: 12px; color: var(--text2); }
+  .alert-tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; background: var(--red-bg); color: var(--red); border: 1px solid rgba(224,90,90,0.2); }
+  .alert-tag.warn { background: var(--amber-bg); color: var(--amber); border-color: rgba(212,146,90,0.2); }
+
+  /* ── Table panel ── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .panel-count { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text3); }
+
+  .filter-tabs { display: flex; gap: 2px; padding: 12px 20px; border-bottom: 1px solid var(--border2); overflow-x: auto; }
+  .ftab {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text3);
+    background: transparent;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .ftab:hover { background: var(--bg3); color: var(--text2); }
+  .ftab.active { background: var(--brand-light); color: var(--brand); }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border2);
+    font-weight: 400;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border2);
+    cursor: pointer;
+    transition: background .1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg3); }
+  tbody tr.selected { background: var(--brand-light); }
+  tbody td { padding: 12px 16px; font-size: 13px; color: var(--text); vertical-align: middle; }
+  .td-company { font-weight: 500; color: var(--text); }
+  .td-poc { color: var(--text2); font-size: 12px; }
+
+  .health-cell { display: flex; align-items: center; gap: 8px; }
+  .hbar { width: 56px; height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+  .hbar-fill { height: 100%; border-radius: 2px; }
+  .hnum { font-size: 12px; font-family: 'DM Mono', monospace; min-width: 24px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    border: 1px solid transparent;
+  }
+  .badge-healthy { background: var(--green-bg); color: var(--green); border-color: rgba(60,166,126,0.2); }
+  .badge-attention { background: var(--amber-bg); color: var(--amber); border-color: rgba(212,146,90,0.2); }
+  .badge-risk { background: var(--red-bg); color: var(--red); border-color: rgba(224,90,90,0.2); }
+  .badge-strategic { background: var(--purple-bg); color: var(--purple); border-color: rgba(139,125,212,0.2); }
+  .badge-growing { background: rgba(60,166,126,0.07); color: #5bb89a; border-color: rgba(60,166,126,0.15); }
+  .badge-low { background: var(--green-bg); color: var(--green); border-color: rgba(60,166,126,0.2); }
+  .badge-medium { background: var(--amber-bg); color: var(--amber); border-color: rgba(212,146,90,0.2); }
+  .badge-high { background: var(--red-bg); color: var(--red); border-color: rgba(224,90,90,0.2); }
+
+  /* ── Right sidebar ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  .detail-card {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: none;
+  }
+  .detail-card.open { display: block; }
+  .detail-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--bg3);
+  }
+  .detail-company { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
+  .detail-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .detail-body { padding: 18px 20px; }
+
+  .score-ring-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .score-ring {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .score-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--ring-color, var(--brand));
+    opacity: .3;
+  }
+  .score-info .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; font-family: 'DM Mono', monospace; }
+  .score-info .val { font-size: 14px; font-weight: 500; color: var(--text); margin-top: 3px; }
+
+  .fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .field { display: flex; justify-content: space-between; align-items: center; }
+  .field-label { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .05em; }
+  .field-val { font-size: 12px; color: var(--text2); text-align: right; max-width: 180px; }
+
+  .ai-rec {
+    background: var(--brand-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .ai-rec-label { font-size: 10px; color: var(--brand); text-transform: uppercase; letter-spacing: .08em; font-family: 'DM Mono', monospace; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .ai-rec-text { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+  .action-rec {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .action-rec .ai-rec-label { color: var(--text3); }
+  .action-rec .ai-rec-text { color: var(--text2); }
+
+  .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .action-btn {
+    flex: 1; min-width: 100px;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .15s;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+  }
+  .action-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); }
+  .action-btn.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .action-btn.primary:hover { background: var(--brand-dim); }
+
+  /* ── Placeholder card ── */
+  .placeholder-card {
+    background: var(--bg2);
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .placeholder-card i { font-size: 28px; display: block; margin-bottom: 10px; opacity: .4; }
+
+  /* ── Mini cards ── */
+  .mini-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .mini-title { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 14px; }
+  .week-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border2); }
+  .week-item:last-child { border-bottom: none; }
+  .week-co { font-size: 12px; font-weight: 500; color: var(--text); }
+  .week-why { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .week-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .engagement-bar { margin-top: 8px; }
+  .eng-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .eng-label { font-size: 11px; color: var(--text3); width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .eng-track { flex: 1; height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+  .eng-fill { height: 100%; border-radius: 2px; background: var(--brand); }
+  .eng-val { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text3); width: 24px; text-align: right; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ── Animations ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  .fadein { animation: fadeUp .3s ease forwards; }
+
+  /* ── Notes modal overlay ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 540px;
+    max-width: 96vw;
+    padding: 28px;
+  }
+  .modal h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .modal p { font-size: 12px; color: var(--text2); margin-bottom: 16px; line-height: 1.5; }
+  .modal textarea {
+    width: 100%;
+    height: 140px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 12px;
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+  }
+  .modal textarea:focus { border-color: var(--brand); }
+  .modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+  .modal-output { margin-top: 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: none; }
+  .modal-output.open { display: block; }
+  .modal-output h4 { font-size: 11px; color: var(--brand); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+  .modal-output p { font-size: 12px; color: var(--text2); margin-bottom: 0; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark"><i class="ti ti-chart-dots-3" style="font-size:16px;"></i></div>
+    <div>
+      <div class="logo-text">CSM Command Center</div>
+      <div class="logo-sub">RPO FIRM · 16 ACCOUNTS</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">
+      <span class="pulse"></span>LIVE
+    </span>
+    <button class="chip" onclick="document.getElementById('notes-modal').classList.add('open')">
+      <i class="ti ti-notes" style="font-size:14px;"></i> Log call notes
+    </button>
+    <a href="https://docs.google.com/spreadsheets/d/1VjP1OihnXaTXeTJRfa-19vxAZWiOryNjRXhoJHO9iLQ/edit" target="_blank" class="chip">
+      <i class="ti ti-table" style="font-size:14px;"></i> Open sheet
+    </a>
+    <button class="chip primary" onclick="alert('Digest generated! In the full build, this would email your weekly priorities.')">
+      <i class="ti ti-send" style="font-size:14px;"></i> Weekly digest
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="container" style="padding-top:28px;">
+
+  <!-- Hero metrics -->
+  <div class="hero">
+    <div class="hero-title">Account health overview</div>
+    <div class="metrics-row" id="metrics-row"></div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alerts-bar" id="alerts-bar"></div>
+
+  <!-- Layout -->
+  <div class="layout">
+    <!-- Left: table -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">All accounts</span>
+          <span class="panel-count" id="count-label">16 accounts</span>
+        </div>
+        <div class="filter-tabs" id="filter-tabs"></div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:22%">Company</th>
+              <th style="width:14%">POC</th>
+              <th style="width:12%">Type</th>
+              <th style="width:16%">Health</th>
+              <th style="width:11%">Risk</th>
+              <th style="width:25%">Engagement</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right: sidebar -->
+    <div class="sidebar">
+      <div class="detail-card" id="detail-card"></div>
+      <div class="placeholder-card" id="placeholder-card">
+        <i class="ti ti-cursor-text"></i>
+        Select an account to view details, AI recommendations, and action items
+      </div>
+
+      <!-- This week -->
+      <div class="mini-panel">
+        <div class="mini-title">This week — priority calls</div>
+        <div id="week-list"></div>
+      </div>
+
+      <!-- Health distribution -->
+      <div class="mini-panel">
+        <div class="mini-title">Health distribution</div>
+        <div class="engagement-bar" id="health-dist"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Call notes modal -->
+<div class="modal-overlay" id="notes-modal">
+  <div class="modal">
+    <h3>Log call notes</h3>
+    <p>Paste your raw call notes below. Claude will extract action items, update the account health, and draft a follow-up.</p>
+    <textarea id="notes-input" placeholder="e.g. Called Mike at SCI today. He mentioned they reduced to 1 seat because the sourcing quality dropped last month. He's open to a demo of the new sourcing workflow. Agreed to reconnect in 2 weeks..."></textarea>
+    <div class="modal-output" id="notes-output">
+      <h4>AI-generated action items</h4>
+      <p id="notes-result"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="chip" onclick="document.getElementById('notes-modal').classList.remove('open');document.getElementById('notes-output').classList.remove('open');">Cancel</button>
+      <button class="chip primary" onclick="processNotes()">
+        <i class="ti ti-sparkles" style="font-size:13px;"></i> Process notes
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const accounts = [
+  { company:"The Joanne Weaver Group", poc:"Joane & Rebecca", designation:"Co-Founder", tz:"EST", type:"Strategic", onboarding:"Oct 2025", onboardingType:"Free Trial", team:"Team", network:"TRU", health:85, healthStatus:"Healthy", risk:"Low", engagement:"2 FT – Sourcing Seat", units:4, ai:"Upsell opportunity: already at 2 FT seats — propose annual contract lock-in to secure ARR.", actions:"Schedule QBR · Propose contract formalization · Present annual discount", status:"Active" },
+  { company:"KBIC (Cynthia)", poc:"Cynthia Salanis", designation:"Managing Partner", tz:"CST", type:"Strategic", onboarding:"Feb 2025", onboardingType:"Discount Trial", team:"Team", network:"SRA", health:80, healthStatus:"Healthy", risk:"Low", engagement:"2 FT – Sourcing Seat", units:4, ai:"2nd seat active. SRA network = referral potential. Pitch BD seat to round out the team.", actions:"Confirm billing cycle · Upsell BD seat · Ask for SRA referral intro", status:"Active" },
+  { company:"SCI", poc:"Mike Seminerio", designation:"Managing Partner", tz:"—", type:"Strategic", onboarding:"Sep 2023", onboardingType:"Direct", team:"Team", network:"—", health:55, healthStatus:"At Risk", risk:"High", engagement:"1 FT Seat (↓ from 2)", units:0, ai:"Client downgraded from 2 FT to 1 FT. Diagnose sourcing quality complaints. Schedule save call immediately.", actions:"URGENT: Book save call this week · Audit sourcing delivery · Offer quality guarantee", status:"Active" },
+  { company:"EGN Consult Recruit", poc:"Errol Neider", designation:"CEO", tz:"EST", type:"Strategic", onboarding:"Dec 2025", onboardingType:"Free Trial", team:"Solo", network:"TRU", health:75, healthStatus:"Healthy", risk:"Low", engagement:"1 PT Sourcing + 1 PT BD", units:2, ai:"Solo operator with BD seat added. 90-day window to nurture towards FT upgrade. Strong ROI case to be made.", actions:"30-day check-in · Present FT ROI calculator · Offer case study from similar client", status:"Active" },
+  { company:"Sobba Group", poc:"Blair Sobba", designation:"President", tz:"PST", type:"Strategic", onboarding:"Dec 2021", onboardingType:"Direct", team:"Solo", network:"—", health:88, healthStatus:"Healthy", risk:"Low", engagement:"1 FT Sourcing + 1 FT Recruiting", units:2, ai:"Longest tenure client (since 2021). Excellent loyalty signal. Perfect QBR candidate and potential case study.", actions:"Annual QBR · Explore team seat upsell · Request testimonial / case study", status:"Active" },
+  { company:"CCR Search", poc:"Dan Steindler", designation:"CEO", tz:"CST", type:"Strategic", onboarding:"Mar 2025", onboardingType:"Free Trial", team:"Solo", network:"TRU", health:70, healthStatus:"Needs Attention", risk:"Medium", engagement:"1 FT Sourcing + 1 PT BD + Admin", units:5, ai:"Account in transition — highest seat count at 5 units. Transition must be managed tightly or churn risk elevates.", actions:"Transition follow-up call · Confirm all seat assignments · Set 60-day success review", status:"Active" },
+  { company:"Definitive Search Partners", poc:"James McKenna", designation:"Managing Director", tz:"EST", type:"Strategic", onboarding:"—", onboardingType:"—", team:"Solo", network:"TRU", health:60, healthStatus:"At Risk", risk:"Medium", engagement:"1 PT Sourcing + 1 PT BD + 1 PT Marketing", units:3, ai:"Downgraded sourcing seat but keeping BD + Marketing. Indicates value shift, not departure. Re-pitch sourcing ROI.", actions:"Re-engagement call · Sourcing ROI pitch with placement data · Identify sponsor contact", status:"Active" },
+  { company:"Estrem and Co.", poc:"Colin Estrem", designation:"—", tz:"—", type:"Strategic", onboarding:"—", onboardingType:"Direct", team:"Team", network:"—", health:65, healthStatus:"Needs Attention", risk:"Medium", engagement:"1 FT Sourcing Seat", units:0, ai:"Profile incomplete — no onboarding date or timezone on file. Cannot accurately risk-score without full profile.", actions:"Complete account profile · Schedule intro CSM call · Gather: TZ, designation, billing cycle", status:"Active" },
+  { company:"Odyssey Search Partners", poc:"Ada Linda", designation:"—", tz:"—", type:"Strategic", onboarding:"—", onboardingType:"—", team:"—", network:"—", health:60, healthStatus:"Needs Attention", risk:"Medium", engagement:"3 FT Database Seats", units:0, ai:"Heavy database usage (3 seats) but zero sourcing seats. Classic upsell signal — they need sourcing but haven't been pitched.", actions:"Discovery call · Understand DB use case · Pitch sourcing seat with 14-day trial offer", status:"Active" },
+  { company:"KBIC (Ashley)", poc:"Ashley Richards", designation:"Managing Partner", tz:"CST", type:"Strategic", onboarding:"Apr 2026", onboardingType:"Free Trial", team:"Team", network:"SRA", health:72, healthStatus:"Healthy", risk:"Low", engagement:"1 FT Sourcing + 1 PT Database", units:0, ai:"New trial started Apr 2026 — critical 30-day onboarding window. Weekly check-ins mandatory to prevent early churn.", actions:"Week 1 check-in (today) · Week 2 check-in scheduled · Ensure team tool adoption", status:"Active" },
+  { company:"Garman Partners", poc:"Steve Garman", designation:"Owner/CEO", tz:"CST", type:"Strategic", onboarding:"Apr 2026", onboardingType:"Direct", team:"Team", network:"SRA", health:75, healthStatus:"Healthy", risk:"Low", engagement:"1 FT Sourcing + 1 PT Database", units:0, ai:"Fresh direct onboarding. Set clear 30/60/90 day milestones now to anchor the relationship and prevent quiet churn.", actions:"Deliver onboarding checklist · Set 30/60/90 goals · Intro to dedicated support", status:"Active" },
+  { company:"JSB", poc:"Matthew D'Eredita", designation:"Head of Market Knowledge", tz:"—", type:"Strategic", onboarding:"Sep 2025", onboardingType:"Direct", team:"Team", network:"SRA", health:80, healthStatus:"Healthy", risk:"Low", engagement:"2 FT Sourcing Seats", units:0, ai:"Organically added DB seat — expansion signal. Propose recruiting seat in next cycle while momentum is high.", actions:"DB seat adoption check · Pitch recruiting seat · Schedule next QBR", status:"Active" },
+  { company:"Health Talent Solutions", poc:"Phil Joujon-Roche", designation:"President", tz:"PST", type:"Growing", onboarding:"Dec 2024", onboardingType:"Free Trial", team:"Solo", network:"—", health:70, healthStatus:"Needs Attention", risk:"Medium", engagement:"1 FT – Sourcing Seat", units:2, ai:"Account transition flagged + upsell opportunity identified. Act before a competitor positions themselves during transition.", actions:"Account transition call · Present upsell options · Identify internal champion", status:"Active" },
+  { company:"Gary Executive Search", poc:"Mark Gary", designation:"—", tz:"CST", type:"Growing", onboarding:"Jan 2026", onboardingType:"Direct", team:"Solo", network:"—", health:68, healthStatus:"Needs Attention", risk:"Low", engagement:"1 PT Sourcing + 1 PT Admin", units:2, ai:"Part-time only — ideal FT upgrade candidate. Run a 'what you're missing' ROI comparison showing FT placement velocity.", actions:"FT upgrade pitch · ROI comparison call · Offer FT trial period", status:"Active" },
+  { company:"Spinnaker Search Group", poc:"Brad Simek", designation:"CEO", tz:"EST", type:"Growing", onboarding:"Dec 2025", onboardingType:"Direct", team:"Team", network:"SRA", health:72, healthStatus:"Healthy", risk:"Low", engagement:"1 PT – Sourcing Seat", units:1, ai:"Team account on single PT seat — significant growth runway. Propose team package pricing vs individual rates.", actions:"Present team pricing · Propose 2nd seat · Schedule team intro call", status:"Active" },
+  { company:"Aspen Associates", poc:"Tom Zeleny", designation:"—", tz:"—", type:"Growing", onboarding:"—", onboardingType:"—", team:"—", network:"—", health:55, healthStatus:"Needs Attention", risk:"Medium", engagement:"1 FT Sourcing Seat", units:0, ai:"Minimal data on file. Unknown risk level. Profile must be completed before accurate health scoring is possible.", actions:"Complete profile · Gather: TZ, designation, onboarding date, CPM, billing cycle", status:"Active" }
+];
+
+const FILTERS = ["All","Strategic","Growing","Healthy","Needs Attention","At Risk","High Risk"];
+let currentFilter = "All";
+let selectedIdx = null;
+
+function healthColor(s) {
+  if (s >= 80) return "#3CA67E";
+  if (s >= 65) return "#d4925a";
+  return "#e05a5a";
+}
+function badgeClass(v) {
+  const m = {"Healthy":"badge-healthy","At Risk":"badge-risk","Needs Attention":"badge-attention","Strategic":"badge-strategic","Growing":"badge-growing","Low":"badge-low","Medium":"badge-medium","High":"badge-high"};
+  return m[v] || "";
+}
+
+function renderMetrics() {
+  const total = accounts.length;
+  const healthy = accounts.filter(a => a.healthStatus==="Healthy").length;
+  const risk = accounts.filter(a => a.healthStatus==="At Risk").length;
+  const attention = accounts.filter(a => a.healthStatus==="Needs Attention").length;
+  const avg = Math.round(accounts.reduce((s,a)=>s+a.health,0)/total);
+  const highRisk = accounts.filter(a => a.risk==="High").length;
+
+  const cards = [
+    {label:"Total accounts",value:total,sub:"All active",cls:""},
+    {label:"Avg health",value:avg+"%",sub:"Portfolio score",cls:"good"},
+    {label:"Healthy",value:healthy,sub:"Score ≥ 80",cls:"good"},
+    {label:"Needs attention",value:attention,sub:"Score 65–79",cls:"warn"},
+    {label:"At risk",value:risk,sub:"Score < 65",cls:"danger"},
+    {label:"High priority",value:highRisk,sub:"Immediate action",cls:"danger"},
+  ];
+  document.getElementById("metrics-row").innerHTML = cards.map(c=>
+    `<div class="metric ${c.cls}"><div class="metric-label">${c.label}</div><div class="metric-value">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
+  ).join("");
+}
+
+function renderAlerts() {
+  const flagged = accounts.filter(a => a.risk==="High" || (a.healthStatus==="At Risk" && a.risk==="Medium"));
+  if (!flagged.length) { document.getElementById("alerts-bar").style.display="none"; return; }
+  document.getElementById("alerts-bar").innerHTML = `
+    <i class="ti ti-alert-triangle"></i>
+    <div class="alert-items">
+      ${flagged.map(a=>`
+        <div class="alert-row">
+          <div><div class="alert-company">${a.company}</div><div class="alert-msg">${a.actions.split("·")[0].trim()}</div></div>
+          <span class="alert-tag ${a.risk==="High"?'':'warn'}">${a.risk.toUpperCase()} RISK</span>
+        </div>`).join("")}
+    </div>`;
+}
+
+function renderFilters() {
+  document.getElementById("filter-tabs").innerHTML = FILTERS.map(f=>
+    `<button class="ftab ${f===currentFilter?'active':''}" onclick="setFilter('${f}')">${f}</button>`
+  ).join("");
+}
+
+function setFilter(f) { currentFilter=f; renderFilters(); renderTable(); }
+
+function filtered() {
+  if (currentFilter==="All") return accounts;
+  if (currentFilter==="Strategic"||currentFilter==="Growing") return accounts.filter(a=>a.type===currentFilter);
+  if (currentFilter==="High Risk") return accounts.filter(a=>a.risk==="High");
+  return accounts.filter(a=>a.healthStatus===currentFilter);
+}
+
+function renderTable() {
+  const rows = filtered();
+  document.getElementById("count-label").textContent = `${rows.length} account${rows.length!==1?"s":""}`;
+  document.getElementById("table-body").innerHTML = rows.map(a=>{
+    const idx = accounts.indexOf(a);
+    const c = healthColor(a.health);
+    return `<tr onclick="selectAccount(${idx})" class="${selectedIdx===idx?'selected':''}">
+      <td><div class="td-company">${a.company}</div></td>
+      <td><div class="td-poc">${a.poc}</div></td>
+      <td><span class="badge ${badgeClass(a.type)}">${a.type}</span></td>
+      <td><div class="health-cell">
+        <div class="hbar"><div class="hbar-fill" style="width:${a.health}%;background:${c};"></div></div>
+        <span class="hnum" style="color:${c};">${a.health}</span>
+      </div></td>
+      <td><span class="badge ${badgeClass(a.risk)}">${a.risk}</span></td>
+      <td style="font-size:12px;color:var(--text2);">${a.engagement}</td>
+    </tr>`;
+  }).join("");
+}
+
+function selectAccount(idx) {
+  selectedIdx = idx;
+  renderTable();
+  const a = accounts[idx];
+  const c = healthColor(a.health);
+  const ph = document.getElementById("placeholder-card");
+  const dc = document.getElementById("detail-card");
+  ph.style.display = "none";
+  dc.classList.add("open");
+  dc.classList.add("fadein");
+  setTimeout(()=>dc.classList.remove("fadein"),400);
+  dc.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-company">${a.company}</div>
+      <div class="detail-sub">${a.poc} · ${a.designation!=="—"?a.designation:"—"} · ${a.tz}</div>
+    </div>
+    <div class="detail-body">
+      <div class="score-ring-wrap">
+        <div class="score-ring" style="background:${c}18;color:${c};--ring-color:${c};">${a.health}</div>
+        <div class="score-info">
+          <div class="label">Health score</div>
+          <div class="val"><span class="badge ${badgeClass(a.healthStatus)}">${a.healthStatus}</span></div>
+          <div class="label" style="margin-top:8px;">Risk level</div>
+          <div class="val"><span class="badge ${badgeClass(a.risk)}">${a.risk}</span></div>
+        </div>
+      </div>
+      <div class="fields">
+        <div class="field"><span class="field-label">Account type</span><span class="field-val"><span class="badge ${badgeClass(a.type)}">${a.type}</span></span></div>
+        <div class="field"><span class="field-label">Onboarding</span><span class="field-val">${a.onboarding} · ${a.onboardingType}</span></div>
+        <div class="field"><span class="field-label">Team structure</span><span class="field-val">${a.team}</span></div>
+        <div class="field"><span class="field-label">Network</span><span class="field-val">${a.network}</span></div>
+        <div class="field"><span class="field-label">Engagement</span><span class="field-val">${a.engagement}</span></div>
+        <div class="field"><span class="field-label">Timezone</span><span class="field-val">${a.tz}</span></div>
+      </div>
+      <div class="ai-rec">
+        <div class="ai-rec-label"><i class="ti ti-sparkles" style="font-size:12px;"></i> AI recommendation</div>
+        <div class="ai-rec-text">${a.ai}</div>
+      </div>
+      <div class="action-rec">
+        <div class="ai-rec-label"><i class="ti ti-checkbox" style="font-size:12px;"></i> Action items</div>
+        <div class="ai-rec-text">${a.actions}</div>
+      </div>
+      <div class="detail-actions">
+        <button class="action-btn" onclick="document.getElementById('notes-modal').classList.add('open')"><i class="ti ti-notes" style="font-size:13px;"></i> Log call</button>
+        <button class="action-btn primary"><i class="ti ti-mail" style="font-size:13px;"></i> Draft email</button>
+      </div>
+    </div>`;
+}
+
+function renderWeekList() {
+  const priority = [...accounts].sort((a,b)=>a.health-b.health).slice(0,5);
+  document.getElementById("week-list").innerHTML = priority.map(a=>`
+    <div class="week-item">
+      <div>
+        <div class="week-co">${a.company}</div>
+        <div class="week-why">${a.actions.split("·")[0].trim()}</div>
+      </div>
+      <div class="week-dot" style="background:${healthColor(a.health)};"></div>
+    </div>`).join("");
+}
+
+function renderHealthDist() {
+  const groups = [
+    {label:"Healthy (≥80)",count:accounts.filter(a=>a.health>=80).length,color:"#3CA67E"},
+    {label:"Attention (65–79)",count:accounts.filter(a=>a.health>=65&&a.health<80).length,color:"#d4925a"},
+    {label:"At risk (<65)",count:accounts.filter(a=>a.health<65).length,color:"#e05a5a"},
+  ];
+  document.getElementById("health-dist").innerHTML = groups.map(g=>`
+    <div class="eng-row">
+      <span class="eng-label">${g.label}</span>
+      <div class="eng-track"><div class="eng-fill" style="width:${Math.round(g.count/accounts.length*100)}%;background:${g.color};"></div></div>
+      <span class="eng-val">${g.count}</span>
+    </div>`).join("");
+}
+
+function processNotes() {
+  const notes = document.getElementById("notes-input").value.trim();
+  if (!notes) return;
+  const out = document.getElementById("notes-output");
+  const res = document.getElementById("notes-result");
+  out.classList.add("open");
+  res.textContent = "Processing...";
+  setTimeout(()=>{
+    res.innerHTML = `
+      <strong style="color:var(--brand);font-size:11px;font-family:'DM Mono',monospace;">ACTION ITEMS EXTRACTED</strong><br><br>
+      · Schedule follow-up call in 14 days<br>
+      · Send sourcing quality report from last 30 days<br>
+      · Demo new sourcing workflow to rebuild confidence<br>
+      · Flag account as "recovery in progress" in tracker<br><br>
+      <strong style="color:var(--text3);font-size:11px;font-family:'DM Mono',monospace;">HEALTH SIGNAL</strong><br><br>
+      Client expressed openness to reconnect — churn risk reduced from HIGH to MEDIUM.`;
+  }, 900);
+}
+
+renderMetrics();
+renderAlerts();
+renderFilters();
+renderTable();
+renderWeekList();
+renderHealthDist();
+</script>
+</body>
+</html>
